@@ -4,6 +4,16 @@
 <div class="container">
     <div class="row">
         <div class="col">
+            <!-- Tombol Tambah -->
+            <a href="/books/create" class="btn btn-primary mb-3">Tambah Data Buku</a>
+
+            <!-- Pesan Flashdata -->
+            <?php if (session()->getFlashdata('pesan')) : ?>
+                <div class="alert alert-success">
+                    <?= session()->getFlashdata('pesan'); ?>
+                </div>
+            <?php endif; ?>
+
             <h1 class="mt-2">Daftar Buku</h1>
 
             <?php if (empty($buku)) : ?>
@@ -12,10 +22,10 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Sampul</th>
-                            <th scope="col">Judul</th>
-                            <th scope="col">Aksi</th>
+                            <th>No</th>
+                            <th>Sampul</th>
+                            <th>Judul</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -23,7 +33,7 @@
                         <?php foreach ($buku as $b) : ?>
                         <tr>
                             <th scope="row"><?= $i++; ?></th>
-                            <td><img src="/img/<?= $b ['sampul'];?>" alt="" class="sampul"></td>
+                            <td><img src="/img/<?= $b['sampul']; ?>" alt="" class="sampul"></td>
                             <td><?= $b['judul']; ?></td>
                             <td><a href="<?= site_url('books/' . $b['slug']); ?>" class="btn btn-success">Detail</a></td>
                         </tr>

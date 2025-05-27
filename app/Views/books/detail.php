@@ -16,11 +16,18 @@
                             <h5 class="card-title"><?= $buku['judul']; ?></h5>
                             <p class="card-text"><strong>Penulis :</strong> <?= $buku['penulis']; ?></p>
                             <p class="card-text">
-                                <snall class="text body secondary"><b>Penerbit :</b> <?= $buku['penerbit']; ?></snall>
+                                <small class="text-body-secondary"><b>Penerbit :</b> <?= $buku['penerbit']; ?></small>
                             </p>
 
-                            <a href="" class="btn btn-warning">Ubah</a>
-                            <a href="" class="btn btn-danger">Hapus</a>
+                            <a href="/books/edit/<?= $buku['slug']; ?>" class="btn btn-warning">Edit</a>
+
+                            <!-- Form Hapus -->
+                            <form action="/books/<?= $buku['id']; ?>" method="post" class="d-inline">
+                                <?= csrf_field(); ?>
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
+                            </form>
+
                             <br><br>
                             <a href="/books">Kembali ke Daftar Buku</a>
                         </div>

@@ -17,6 +17,8 @@ class BookModel extends Model
         if ($slug == false) {
             return $this->findAll();
         }
+
         return $this->where(['slug' => $slug])->first();
     }
+
 }
