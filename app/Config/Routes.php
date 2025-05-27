@@ -15,4 +15,9 @@ $routes->get('/Contact', 'Page::contact');
 $routes->get('/Faqs', 'Page::faqs');
 $routes->get('/Tos', 'Page::tos');
 $routes->get('/Biodata', 'Page::Biodata');
-$routes->setAutoroute(false);
+
+$routes->get('/books', 'Books::index');
+$routes->get('/books/(:segment)', 'Books::detail/$1');
+
+$routes->setAutoRoute(false);
+

@@ -1,0 +1,20 @@
+body {
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #343a40;
+}
+
+/* Mengatur ukuran gambar sampul */
+.sampul {
+    width: 100px;        /* Atur lebar maksimal */
+    height: auto;        /* Tinggi otomatis menyesuaikan proporsi */
+    border-radius: 5px;  /* Opsional: sudut membulat */
+    object-fit: cover;   /* Memastikan gambar proporsional */
+}
+
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
