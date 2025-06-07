@@ -9,6 +9,7 @@
             <form action="/books/update/<?= $buku['id']; ?>" method="post">
                 <?= csrf_field(); ?>
                 <input type="hidden" name="slug" value="<?= $buku['slug']; ?>">
+                <input type="hidden" name="samp" value="<?= $buku['slug']; ?>">
 
                 <div class="row mb-3">
                     <label for="judul" class="col-sm-2 col-form-label">Judul</label>

@@ -4,8 +4,6 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <!-- Tombol Tambah -->
-            <a href="/books/create" class="btn btn-primary mb-3">Tambah Data Buku</a>
 
             <!-- Pesan Flashdata -->
             <?php if (session()->getFlashdata('pesan')) : ?>
@@ -40,6 +38,8 @@
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                 <!-- Tombol Tambah -->
+            <a href="/books/create" class="btn btn-primary mb-3">Tambah Data Buku</a>
             <?php endif; ?>
 
         </div>

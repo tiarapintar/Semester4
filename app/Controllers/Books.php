@@ -7,124 +7,182 @@ use App\Models\BookModel;
 class Books extends BaseController
 {
     protected $bukuModel;
+
     public function __construct()
     {
         $this->bukuModel = new BookModel();
     }
+
     public function index()
     {
-        $buku = $this->bukuModel->findAll();
-        $data =[
+        $data = [
             'title' => 'Daftar Buku',
             'buku' => $this->bukuModel->getBuku()
         ];
         return view('books/index', $data);
     }
+
     public function detail($slug)
     {
-        //$buku = $this->bukuModel->where(['$slug' => $slug])->first();
-        //$buku = $this->bukuModel->getKomik($slug); pindah ke data
-
-        $data =[
+        $data = [
             'title' => 'Detail Buku',
             'buku' => $this->bukuModel->getBuku($slug)
         ];
-        //jika buku tidak ada
-        if (empty($data['buku'])){
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Judul Buku'. $slug. 'Tidak ditemukan');
+
+        if (empty($data['buku'])) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Judul Buku "' . $slug . '" tidak ditemukan');
         }
+
         return view('books/detail', $data);
     }
+
     public function create()
     {
         $data = [
-            'title '=> 'Form Tamba Buku',
+            'title' => 'Form Tambah Buku',
             'validation' => \Config\Services::validation()
         ];
 
         return view('books/create', $data);
     }
+
     public function save()
-{
-    if (!$this->validate([
-        'judul' => [
-            'rules' => 'required|is_unique[books.judul]',
-            'errors' => [
-                'required' => '{field} buku harus diisi',
-                'is_unique' => '{field} buku sudah dimasukkan'
+    {
+        if (!$this->validate([
+            'judul' => [
+                'rules' => 'required|is_unique[books.judul]',
+                'errors' => [
+                    'required' => 'Judul harus diisi',
+                    'is_unique' => 'Judul sudah dimasukkan'
+                ]
+            ],
+            'penulis' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Penulis harus diisi',
+                ]
+            ],
+            'penerbit' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Penerbit harus diisi',
+                ]
+            ],
+            'sampul' => [
+                'rules' => 'max_size[sampul,1024]|is_image[sampul]|mime_in[sampul,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'max_size' => 'Ukuran file terlalu besar',
+                    'is_image' => 'File yang dipilih bukan gambar',
+                    'mime_in' => 'Format gambar tidak sesuai (jpg/jpeg/png)'
+                ]
             ]
-        ]
-    ])) {
-        $validation = \Config\Services::validation();
-        return redirect()->to(base_url() . '/books/create')->withInput()->with('validation', $validation);
+        ])) {
+            $validation = \Config\Services::validation();
+            return redirect()->to('/books/create')->withInput()->with('validation', $validation);
+        }
+
+        // ambil file gambar
+        $gambarSampul = $this->request->getFile('sampul');
+
+        // cek apakah tidak ada gambar yang di-upload
+        if ($gambarSampul->getError() == 4) {
+            $namaSampul = 'no-cover.jpg';
+        } else {
+            $namaSampul = $gambarSampul->getRandomName();
+            $gambarSampul->move('img', $namaSampul);
+        }
+
+        $slug = url_title($this->request->getVar('judul'), '-', true);
+
+        $this->bukuModel->save([
+            'judul' => $this->request->getVar('judul'),
+            'slug' => $slug,
+            'penulis' => $this->request->getVar('penulis'),
+            'penerbit' => $this->request->getVar('penerbit'),
+            'sampul' => $namaSampul
+        ]);
+
+        session()->setFlashdata('pesan', 'Data berhasil ditambahkan');
+        return redirect()->to('/books');
     }
 
-    $slug = url_title($this->request->getVar('judul'), '-', true);
-    $this->bukuModel->save([
-        'judul' => $this->request->getVar('judul'),
-        'slug' => $slug,  // hapus spasi
-        'penulis' => $this->request->getVar('penulis'),
-        'penerbit' => $this->request->getVar('penerbit'),
-        'sampul' => $this->request->getVar('sampul')
-    ]);
+    public function edit($slug)
+    {
+        $data = [
+            'title' => 'Form Ubah Data Buku',
+            'validation' => \Config\Services::validation(),
+            'buku' => $this->bukuModel->getBuku($slug)
+        ];
 
-    session()->setFlashdata('pesan', 'Data berhasil ditambahkan');
-    return redirect()->to('/books');
-}
-
-public function update($id)
-{
-    $bukuLama = $this->bukuModel->getBuku($this->request->getVar('slug'));
-    if ($bukuLama['judul'] == $this->request->getVar('judul')) {
-        $rule_judul = 'required';
-    } else {
-        $rule_judul = 'required|is_unique[books.judul]';  // huruf kecil
+        return view('books/edit', $data);
     }
 
-    if (!$this->validate([
-        'judul' => [
-            'rules' => $rule_judul,
-            'errors' => [
-                'required' => '{field} buku harus diisi',
-                'is_unique' => '{field} buku sudah dimasukkan'
+    public function update($id)
+    {
+        $bukuLama = $this->bukuModel->getBuku($this->request->getVar('slug'));
+
+        if ($bukuLama['judul'] == $this->request->getVar('judul')) {
+            $rule_judul = 'required';
+        } else {
+            $rule_judul = 'required|is_unique[books.judul]';
+        }
+
+        if (!$this->validate([
+            'judul' => [
+                'rules' => $rule_judul,
+                'errors' => [
+                    'required' => 'Judul buku harus diisi',
+                    'is_unique' => 'Judul buku sudah ada'
+                ]
             ]
-        ]
-    ])) {
-        $validation = \Config\Services::validation();
-        return redirect()->to('/books/edit/' . $this->request->getVar('slug'))->withInput()->with('validation', $validation);
+        ])) {
+            $validation = \Config\Services::validation();
+            return redirect()->to('/books/edit/' . $this->request->getVar('slug'))->withInput()->with('validation', $validation);
+        }
+
+        $gambarSampul = $this->request->getFile('sampul');
+
+        if ($gambarSampul->getError() == 4) {
+            $namaSampul = $this->request->getVar('sampulLama');
+        } else {
+            $namaSampul = $gambarSampul->getRandomName();
+            $gambarSampul->move('img', $namaSampul);
+
+            // Hapus file lama jika ada dan bukan default
+            $fileLama = 'img/' . $this->request->getVar('sampulLama');
+            if ($this->request->getVar('sampulLama') != 'no-cover.jpg' && file_exists($fileLama)) {
+                unlink($fileLama);
+            }
+        }
+
+        $slug = url_title($this->request->getVar('judul'), '-', true);
+
+        $this->bukuModel->save([
+            'id' => $id,
+            'judul' => $this->request->getVar('judul'),
+            'slug' => $slug,
+            'penulis' => $this->request->getVar('penulis'),
+            'penerbit' => $this->request->getVar('penerbit'),
+            'sampul' => $namaSampul
+        ]);
+
+        session()->setFlashdata('pesan', 'Data berhasil diubah');
+        return redirect()->to('/books');
     }
 
-    $slug = url_title($this->request->getVar('judul'), '-', true);
-    $this->bukuModel->save([
-        'id' => $id,
-        'judul' => $this->request->getVar('judul'),
-        'slug' => $slug,
-        'penulis' => $this->request->getVar('penulis'),
-        'penerbit' => $this->request->getVar('penerbit'),
-        'sampul' => $this->request->getVar('sampul')
-    ]);
+    public function delete($id)
+    {
+        $buku = $this->bukuModel->find($id);
 
-    session()->setFlashdata('pesan', 'Data berhasil diubah');
-    return redirect()->to('/books');
-}
+        if ($buku['sampul'] != 'no-cover.jpg') {
+            $filePath = 'img/' . $buku['sampul'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
 
-public function delete($id)
-{
-    $this->bukuModel->delete($id);
-    session()->setFlashdata('pesan', 'Data berhasil dihapus');  // perbaiki Flasdata
-    return redirect()->to('/books');
-}
-
-public function edit($slug)
-{
-    $data = [
-        'title' => 'Form Ubah Data Buku',
-        'validation' => \Config\Services::validation(),
-        'buku' => $this->bukuModel->getBuku($slug)
-    ];
-
-    return view('books/edit', $data);
-}
-
-
+        $this->bukuModel->delete($id);
+        session()->setFlashdata('pesan', 'Data berhasil dihapus');
+        return redirect()->to('/books');
+    }
 }
