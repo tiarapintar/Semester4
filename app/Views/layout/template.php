@@ -5,13 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Buku</title>
-    <base href="<?= base_url(); ?>">
+    <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('css/style.css'); ?>">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container">
             <a class="navbar-brand" href="/">Perpustakaan</a>
@@ -19,37 +21,49 @@
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/books">Books</a></li>
+                <ul class="navbar-nav ms-auto">
+                    <!-- ms-auto untuk menggeser ke kanan -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/books">Beranda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/books">Daftar Buku</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/penulis">Daftar Penulis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/books/create">Tambah Buku</a>
+                    </li>
+                    <!-- Tambah menu lain jika perlu -->
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <?= $this->renderSection('content'); ?>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function previewImg() {
+    function previewImg() {
+        const sampul = document.querySelector('#sampul');
+        const imgPreview = document.querySelector('.img-preview');
 
-            const sampul = document.querySelector('#sampul');
-            const sampulLabel = document.querySelector('.input-group-text');
-            const lagPreview = document.querySelector('.ing-preview');
-
-            sampulLabel.textContent = sampul.files[0].name;
-
+        if (sampul.files.length > 0) {
             const fileSampul = new FileReader();
-            fileSampul.readAsDataUrl(sampul.files[0]);
+            fileSampul.readAsDataURL(sampul.files[0]);
 
             fileSampul.onload = function(e) {
                 imgPreview.src = e.target.result;
             }
         }
+    }
     </script>
-    
 </body>
 
 </html>
